@@ -1,0 +1,18 @@
+#netsync-panel {
+  position: fixed;
+  top: 0; right: 0; width: 300px; height: 100vh;
+  background: #141414; z-index: 999999;
+  display: flex; flex-direction: column;
+  border-left: 2px solid #e50914;
+}
+
+#netsync-panel video {
+  width: 100%; background: #000; margin-bottom: 10px;
+}
+
+/* Target the specific Netflix wrapper classes to squish the video player */
+.netsync-active [data-uia="watch-video"],
+.netsync-active .watch-video,
+.netsync-active .nfp-UI {
+  width: calc(100% - 300px) !important;
+}

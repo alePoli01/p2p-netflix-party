@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Tailscale NetSync",
+  "version": "1.0",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.netflix.com/*"],
+      "js": ["content.js"],
+      "css": ["style.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["inject.js"],
+      "matches": ["*://*.netflix.com/*"]
+    }
+  ]
+}
