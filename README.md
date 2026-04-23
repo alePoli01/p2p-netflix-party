@@ -30,3 +30,4 @@ A secure, self-hosted Chrome extension for synchronized Netflix playback over a 
 * **Seeking Glitches:** Jumping to a specific minute might cause some temporary play/pause stuttering between the two peers. Just toggle play/pause a couple of times to stabilize the sync.
 * **Netflix Ad-Supported Plans:** If one or both users have a Netflix plan with ads, the streams will likely desynchronize because ads trigger at different times for different users. 
   * *Workaround:* Wait for the ad break to finish, then have one user pause and play to force a resync.
+* **Full Screen mode:** only available by pressing F11 on windows (or any other command that makes the browser full screen). Media player full screen covers the extension
