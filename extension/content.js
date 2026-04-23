@@ -9,6 +9,7 @@ let peerConnection, localStream;
 let isRemoteAction = false;
 let currentUrl = window.location.href.split('?')[0];
 let currentVideoId = getNetflixId(currentUrl);
+let videoHooksIntervalId = null;
 
 const script = document.createElement('script');
 script.src = chrome.runtime.getURL('inject.js');
@@ -27,6 +28,8 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === 'start') {
     setupUI();
     chrome.runtime.sendMessage({ action: 'start', ip: request.ip });
+  } else if (request.action === 'disconnect') {
+    teardownSession();
   } else if (request.action === 'ws_connected') {
     setupWebRTC();
   } else if (request.action === 'ws_receive') {
@@ -81,6 +84,37 @@ function setupUI() {
   setupVideoHooks();
 }
 
+function teardownSession() {
+  try {
+    if (peerConnection) {
+      peerConnection.ontrack = null;
+      peerConnection.onicecandidate = null;
+      peerConnection.onnegotiationneeded = null;
+      peerConnection.close();
+    }
+  } catch (_) {}
+  peerConnection = null;
+
+  try {
+    if (localStream) {
+      localStream.getTracks().forEach((t) => t.stop());
+    }
+  } catch (_) {}
+  localStream = null;
+
+  if (videoHooksIntervalId) {
+    clearInterval(videoHooksIntervalId);
+    videoHooksIntervalId = null;
+  }
+
+  currentNetflixVideo = null;
+  isRemoteAction = false;
+
+  const panel = document.getElementById('netsync-panel');
+  if (panel) panel.remove();
+  document.body.classList.remove('netsync-active');
+}
+
 async function setupWebRTC() {
   if (!localStream) {
     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -132,7 +166,8 @@ function createPeerConnection() {
 let currentNetflixVideo = null;
 
 function setupVideoHooks() {
-  setInterval(() => {
+  if (videoHooksIntervalId) return;
+  videoHooksIntervalId = setInterval(() => {
     const newUrl = window.location.href.split('?')[0];
     const newVideoId = getNetflixId(newUrl);
 

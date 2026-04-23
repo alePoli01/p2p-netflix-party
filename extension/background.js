@@ -10,7 +10,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     ws.send(JSON.stringify(request.data));
   } else if (request.action === 'disconnect') {
     if (ws) ws.close();
+    clearInterval(keepAliveInterval);
+    keepAliveInterval = null;
     chrome.storage.local.set({ connectionStatus: 'Disconnected' });
+    if (netflixTabId) {
+      chrome.tabs.sendMessage(netflixTabId, { action: 'disconnect' }).catch(() => {});
+    }
+    netflixTabId = null;
   } else if (request.action === 'request_status') {
     // Allows the content script to check if it should auto-reconnect after a reload
     chrome.storage.local.get(['connectionStatus', 'tailscaleIP'], (result) => {

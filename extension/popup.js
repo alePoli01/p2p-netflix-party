@@ -29,6 +29,11 @@ document.getElementById('connectBtn').addEventListener('click', () => {
 
 document.getElementById('disconnectBtn').addEventListener('click', () => {
   chrome.runtime.sendMessage({ action: 'disconnect' });
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs.length > 0) {
+      chrome.tabs.sendMessage(tabs[0].id, { action: 'disconnect' }).catch(() => {});
+    }
+  });
   showConnectPanel();
   chrome.storage.local.get(['ipHistory'], (result) => renderHistory(result.ipHistory || []));
 });
